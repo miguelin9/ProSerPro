@@ -1,0 +1,53 @@
+//iniciamos servicio
+sudo service mongod start
+
+//importamos el archivo
+mongoimport --db ejercicio --collection humanos --type json --file personas.json --jsonArray
+
+//nos conectamos a mongo y a la BBDD ejercicio
+mongo ejercicio
+
+//muestra las base de datos que hay
+show databases
+
+//nos muestra los datos de la coleccion de humanos
+db.humanos.find()
+
+//los muestra bonito
+db.humanos.find().pretty()
+
+//Incorpora un documento con tus datos personales.
+db.humanos.insert ({id : 1001, sexo : 'Male', edad : 26, nombre : 'Miguel Castillo'})
+
+//Busca todos los documentos relacionados con objetos que tenga el mismvo valor que tu edad.
+db.humanos.find({edad : 26})
+
+//Busca todos los documentos que correspondan a persona mayores de edad.
+db.humanos.find({ edad : {$gte : 18} })
+
+//Ahora todos los documentos que correspondan a persona menores de edad y sexo femenino:
+db.humanos.find({ edad : {$lt : 18} , sexo : 'Female' })
+db.humanos.find({ $and : [{edad : {$lt : 18}} , {sexo : 'Female' }]})
+
+//Igual que antes y además que su nombre debe comenzar por A
+db.humanos.find({ edad : {$lt : 18} , sexo : 'Female' , nombre : /^A/})
+
+//Igual que antes y además que su nombre debe comenzar por A o por F
+db.humanos.find({ edad : {$lt : 18} , sexo : 'Female' , nombre : /^[AF]/})
+
+//Cambia de sexo al docuento que corresponde a tus datos personales.
+db.humanos.update ({ nombre : 'Miguel Castillo' } , {$set : {sexo : 'Female' }})//si no se pone el $set borra los campos que no pongamos
+
+//Cambia a sexo Male a todos los documentos que corresponde a menores de edad.
+db.humanos.update ({ edad : {$lt:18} } , {$set : {sexo : 'Male'} }, {multi:true})
+
+//Añade una nueva columna, denominada fecha y cuyo valor sea la fecha actual.
+db.humanos.update({} , {$set : {fecha : new Date()}},{multi:true})
+
+//Busca información de como exportar los datos de la colección anterior teniendo en cuenta:
+• Queremos guardar 100 documentos.
+• Para aquellos que sean mayores de edad.
+• Empezando por el registro 200
+
+mongoexport -d ejercicio -c humanos -q '{ edad : {$gte : 18}}' --limit 100 --skip 200 --out salida.json
+
